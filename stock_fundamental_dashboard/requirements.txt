@@ -1,5 +1,0 @@
-streamlit==1.26.0
-pandas==1.5.3
-numpy==1.24.2
-plotly==5.8.2
-streamlit-sortables==0.3.1
