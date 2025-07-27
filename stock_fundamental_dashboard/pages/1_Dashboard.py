@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import os
+from datetime import datetime, timedelta
 from utils import io_helpers, calculations
 
 # ---------- Force Wide Layout on Page ----------
@@ -26,49 +28,79 @@ if df is None or df.empty or "Name" not in df.columns:
     st.warning("No stock data found. Please add data in 'Add or Edit'.")
     st.stop()
 
+# Ensure proper types
 if "IsQuarter" not in df.columns:
     df["IsQuarter"] = False
+df["IsQuarter"] = df["IsQuarter"].astype(bool)
+
+# Get data file last modified timestamp
+try:
+    data_path = io_helpers.get_data_path()
+    file_ts = os.path.getmtime(data_path)
+    last_mod = datetime.fromtimestamp(file_ts)
+except Exception:
+    last_mod = None
 
 # Work with annual rows only for summary
-annual = df[df["IsQuarter"] != True].copy()
+annual = df[~df["IsQuarter"]].copy()
 
-# --- FILTERS: Industry, Search ---
-colf1, colf2 = st.columns([1, 2])
+# --- FILTERS: Industry, Search, Date ---
+colf1, colf2, colf3 = st.columns([1, 2, 1])
 with colf1:
-    industries = ["All"] + sorted([x for x in annual["Industry"].dropna().unique()])
+    industries = ["All"] + sorted(annual["Industry"].dropna().unique())
     industry_sel = st.selectbox("Filter by Industry", industries, index=0)
 with colf2:
     search_text = st.text_input("🔍 Search Stock Name or Industry", placeholder="Type to filter...")
+with colf3:
+    date_opts = ["Any", "> 7 days", "> 14 days", "> 1 month", "> 3 months"]
+    date_sel = st.selectbox("Filter by last update", date_opts, index=0)
 
-view = annual if industry_sel == "All" else annual[annual["Industry"] == industry_sel]
+# Apply filters
+df_view = annual.copy()
+if industry_sel != "All":
+    df_view = df_view[df_view["Industry"] == industry_sel]
 if search_text.strip():
-    q = search_text.strip().lower()
-    view = view[
-        view["Name"].str.lower().str.contains(q, na=False) |
-        view["Industry"].str.lower().str.contains(q, na=False)
+    q = search_text.lower()
+    df_view = df_view[
+        df_view["Name"].str.lower().str.contains(q, na=False) |
+        df_view["Industry"].str.lower().str.contains(q, na=False)
     ]
+if last_mod and date_sel != "Any":
+    age = datetime.now() - last_mod
+    if date_sel == "> 7 days":
+        thresh = timedelta(days=7)
+    elif date_sel == "> 14 days":
+        thresh = timedelta(days=14)
+    elif date_sel == "> 1 month":
+        thresh = timedelta(days=30)
+    else:
+        thresh = timedelta(days=90)
+    if age <= thresh:
+        df_view = df_view.iloc[0:0]  # no rows pass
 
 # ===============================================================
 #  A) SUMMARY (one row per stock — latest year only)
 # ===============================================================
 st.subheader("📌 Latest-year Summary (one row per stock)")
-
-if view.empty:
+if df_view.empty:
     st.info("No rows to show for the current filter.")
 else:
-    latest = view.sort_values(["Name", "Year"]).groupby("Name", as_index=False).tail(1).copy()
-
+    latest = (
+        df_view
+        .sort_values(["Name", "Year"])
+        .groupby("Name", as_index=False)
+        .tail(1)
+    )
     rows = []
     for _, r in latest.iterrows():
         ratio = calculations.calc_ratios(r)
-        # Prefer CurrentPrice; fall back to SharePrice (annual end-of-year)
         cur = r.get("CurrentPrice", np.nan)
         if pd.isna(cur):
             cur = r.get("SharePrice", np.nan)
         rows.append({
             "Stock": r["Name"],
-            "Industry": r.get("Industry", None),
-            "Year": r.get("Year", None),
+            "Industry": r["Industry"],
+            "Year": r["Year"],
             "Current Price": cur,
             "Revenue": ratio.get("Revenue"),
             "NetProfit": ratio.get("NetProfit"),
@@ -78,9 +110,59 @@ else:
             "P/B": ratio.get("P/B"),
             "Net Profit Margin (%)": ratio.get("Net Profit Margin (%)"),
             "Dividend Yield (%)": ratio.get("Dividend Yield (%)"),
+            "LastModified": last_mod.strftime("%Y-%m-%d %H:%M:%S") if last_mod else "N/A"
         })
-    summary = pd.DataFrame(rows).sort_values(["Stock"]).reset_index(drop=True)
+    summary = pd.DataFrame(rows).sort_values("Stock").reset_index(drop=True)
     st.dataframe(summary, use_container_width=True, height=320)
+
+# ===============================================================
+#  C) 📊 Latest-Quarter Summary (one row per stock)
+# ===============================================================
+st.subheader("📌 Latest-quarter Summary (one row per stock)")
+quarterly = df[df["IsQuarter"]].copy()
+if quarterly.empty:
+    st.info("No quarterly data available.")
+else:
+    qv = quarterly.copy()
+    if industry_sel != "All":
+        qv = qv[qv["Industry"] == industry_sel]
+    if search_text.strip():
+        q = search_text.lower()
+        qv = qv[
+            qv["Name"].str.lower().str.contains(q, na=False) |
+            qv["Industry"].str.lower().str.contains(q, na=False)
+        ]
+    latest_q = (
+        qv
+        .sort_values(["Name", "Year", "Quarter"])
+        .groupby("Name", as_index=False)
+        .tail(1)
+    )
+    qrows = []
+    for _, r in latest_q.iterrows():
+        ratio = calculations.calc_ratios(r)
+        cur = r.get("CurrentPrice", np.nan)
+        if pd.isna(cur):
+            cur = r.get("Q_EndQuarterPrice", np.nan)
+        qrows.append({
+            "Stock": r["Name"],
+            "Industry": r["Industry"],
+            "Year": r["Year"],
+            "Quarter": r["Quarter"],
+            "Current Price": cur,
+            "Revenue": ratio.get("Revenue"),
+            "NetProfit": ratio.get("NetProfit"),
+            "EPS": ratio.get("EPS"),
+            "ROE (%)": ratio.get("ROE (%)"),
+            "P/E": ratio.get("P/E"),
+            "P/B": ratio.get("P/B"),
+            "Net Profit Margin (%)": ratio.get("Net Profit Margin (%)"),
+            "Dividend Yield (%)": ratio.get("Dividend Yield (%)"),
+            "LastModified": last_mod.strftime("%Y-%m-%d %H:%M:%S") if last_mod else "N/A"
+        })
+    qsummary = pd.DataFrame(qrows).sort_values("Stock").reset_index(drop=True)
+    st.dataframe(qsummary, use_container_width=True, height=320)
+
 
 # ===============================================================
 #  B) 🎯 Watchlist & Target Price
