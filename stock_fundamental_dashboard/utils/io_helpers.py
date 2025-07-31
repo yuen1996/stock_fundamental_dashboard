@@ -1,0 +1,322 @@
+import pandas as pd
+import os
+from datetime import datetime
+
+DATA_PATH = "data/stocks.csv"
+
+# Unified schema (both Annual and Quarterly).
+# Keep this list as the single source of truth to avoid KeyErrors.
+ALL_COLUMNS = [
+    "Name","Industry","Year","IsQuarter","Quarter",
+    # Annual (income)
+    "NetProfit","GrossProfit","Revenue","CostOfSales","FinanceCosts","AdminExpenses","SellDistExpenses",
+    # Annual (balance / other)
+    "NumShares","CurrentAsset","OtherReceivables","TradeReceivables","BiologicalAssets","Inventories","PrepaidExpenses",
+    "IntangibleAsset","CurrentLiability","TotalAsset","TotalLiability","ShareholderEquity","Reserves",
+    "Dividend","SharePrice",
+    # Independent per‑stock current price (used by ratios/TTM)
+    "CurrentPrice",
+    # Quarterly (prefix Q_)
+    "Q_NetProfit","Q_GrossProfit","Q_Revenue","Q_CostOfSales","Q_FinanceCosts","Q_AdminExpenses","Q_SellDistExpenses",
+    "Q_NumShares","Q_CurrentAsset","Q_OtherReceivables","Q_TradeReceivables","Q_BiologicalAssets","Q_Inventories",
+    "Q_PrepaidExpenses","Q_IntangibleAsset","Q_CurrentLiability","Q_TotalAsset","Q_TotalLiability",
+    "Q_ShareholderEquity","Q_Reserves","Q_SharePrice","Q_EndQuarterPrice",
+    # Per‑row timestamp
+    "LastModified",
+]
+
+# -------- Watchlist storage --------
+WATCHLIST_PATH = "data/watchlist.csv"
+WATCHLIST_COLUMNS = ["Name", "TargetPrice", "Notes", "Active"]
+
+# ─────────────── TRADE QUEUE ───────────────
+TRADE_QUEUE_PATH    = "data/trade_queue.csv"
+# Backward-compatible superset schema (old CSVs will be auto-upgraded)
+TRADE_QUEUE_COLUMNS = [
+    "Name", "Strategy", "Score", "CurrentPrice",
+    # New planning fields
+    "Entry", "Stop", "Take", "Shares", "RR",
+    "TP1", "TP2", "TP3",
+    "Timestamp", "Reasons",
+]
+
+
+
+def ensure_schema(df: pd.DataFrame) -> pd.DataFrame:
+    if df is None:
+        df = pd.DataFrame(columns=ALL_COLUMNS)
+    # Add missing columns; do not drop unknown columns (backward compatibility)
+    for col in ALL_COLUMNS:
+        if col not in df.columns:
+            if col == "IsQuarter":
+                df[col] = False
+            elif col == "Quarter":
+                df[col] = pd.NA
+            else:
+                df[col] = pd.NA
+    return df
+
+
+def load_data() -> pd.DataFrame:
+    if not os.path.exists(DATA_PATH):
+        return ensure_schema(pd.DataFrame(columns=ALL_COLUMNS))
+    try:
+        df = pd.read_csv(DATA_PATH)
+    except Exception:
+        # Corrupt or empty file, start fresh with proper schema
+        df = pd.DataFrame(columns=ALL_COLUMNS)
+    return ensure_schema(df)
+
+
+def save_data(df: pd.DataFrame) -> None:
+    # 1) Ensure schema (so LastModified column exists)
+    df = ensure_schema(df)
+
+    # 2) Load the existing on‑disk DataFrame (to compare old timestamps and values)
+    try:
+        old = load_data()  # this is the same load_data above
+    except Exception:
+        old = pd.DataFrame(columns=ALL_COLUMNS)
+
+    # 3) Build a lookup on (Name, IsQuarter, Year, Quarter) → old row
+    old = old.set_index(["Name", "IsQuarter", "Year", "Quarter"], drop=False)
+
+    # 4) Now walk each row in the new df; if it matches old (ignoring LastModified),
+    #    preserve the old LastModified; otherwise stamp with now()
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    out = []
+    for _, new_row in df.iterrows():
+        key = (new_row["Name"], new_row["IsQuarter"], new_row["Year"], new_row["Quarter"])
+        if key in old.index:
+            old_row = old.loc[key]
+            # compare all columns except LastModified
+            # note: old_row may be a Series; drop LastModified from both
+            nr = new_row.drop(labels="LastModified")
+            orow = old_row.drop(labels="LastModified")
+            if nr.equals(orow):
+                new_row["LastModified"] = old_row["LastModified"]
+            else:
+                new_row["LastModified"] = now
+        else:
+            # brand new record → stamp
+            new_row["LastModified"] = now
+        out.append(new_row)
+
+    # 5) Reassemble and write back
+    df2 = pd.DataFrame(out)
+    os.makedirs(os.path.dirname(DATA_PATH), exist_ok=True)
+    df2.to_csv(DATA_PATH, index=False)
+
+
+
+# -------- Watchlist helpers --------
+def _ensure_watchlist_schema(df: pd.DataFrame) -> pd.DataFrame:
+    if df is None or df.empty:
+        df = pd.DataFrame(columns=WATCHLIST_COLUMNS)
+    for col in WATCHLIST_COLUMNS:
+        if col not in df.columns:
+            if col == "Active":
+                df[col] = True
+            else:
+                df[col] = pd.NA
+
+    # Type conversions (important for Streamlit editor)
+    if "Active" in df.columns:
+        df["Active"] = df["Active"].fillna(True).astype(bool)
+    if "TargetPrice" in df.columns:
+        df["TargetPrice"] = pd.to_numeric(df["TargetPrice"], errors="coerce")
+    if "Notes" in df.columns:
+        # keep empty strings (not floats) so TextColumn works
+        df["Notes"] = df["Notes"].astype("string").fillna("")
+    # Return columns in canonical order
+    return df[WATCHLIST_COLUMNS]
+
+
+def load_watchlist() -> pd.DataFrame:
+    if not os.path.exists(WATCHLIST_PATH):
+        return pd.DataFrame(columns=WATCHLIST_COLUMNS)
+    try:
+        df = pd.read_csv(WATCHLIST_PATH)
+    except Exception:
+        df = pd.DataFrame(columns=WATCHLIST_COLUMNS)
+    return _ensure_watchlist_schema(df)
+
+
+def save_watchlist(df: pd.DataFrame) -> None:
+    df = _ensure_watchlist_schema(df)
+    os.makedirs(os.path.dirname(WATCHLIST_PATH), exist_ok=True)
+    df.to_csv(WATCHLIST_PATH, index=False)
+
+# ─────────────── Trade-queue helpers ───────────────
+def _ensure_trade_queue_schema(df: pd.DataFrame) -> pd.DataFrame:
+    """Ensure the trade queue has all expected columns (add missing; keep extras)."""
+    if df is None or df.empty:
+        df = pd.DataFrame(columns=TRADE_QUEUE_COLUMNS)
+    for c in TRADE_QUEUE_COLUMNS:
+        if c not in df.columns:
+            df[c] = pd.NA
+    # keep canonical order, but preserve any unknown columns at the end
+    known = [c for c in TRADE_QUEUE_COLUMNS if c in df.columns]
+    extra = [c for c in df.columns if c not in TRADE_QUEUE_COLUMNS]
+    return df[known + extra]
+
+
+def load_trade_queue() -> pd.DataFrame:
+    if not os.path.exists(TRADE_QUEUE_PATH):
+        return pd.DataFrame(columns=TRADE_QUEUE_COLUMNS)
+    try:
+        df = pd.read_csv(TRADE_QUEUE_PATH)
+    except Exception:
+        df = pd.DataFrame(columns=TRADE_QUEUE_COLUMNS)
+    return _ensure_trade_queue_schema(df)
+
+
+def save_trade_queue(df: pd.DataFrame) -> None:
+    df = _ensure_trade_queue_schema(df)
+    os.makedirs(os.path.dirname(TRADE_QUEUE_PATH), exist_ok=True)
+    df.to_csv(TRADE_QUEUE_PATH, index=False)
+
+
+def push_trade_candidate(
+    name: str,
+    strategy: str,
+    score: float,
+    current_price,
+    reasons: str = "",
+    *,
+    entry: float | None = None,
+    stop:  float | None = None,
+    take:  float | None = None,
+    shares: int | None = None,
+    rr: float | None = None,
+    tp1: float | None = None,
+    tp2: float | None = None,
+    tp3: float | None = None,
+) -> None:
+    """
+    Append/replace a candidate identified by (Name, Strategy).
+    Extra planning fields are optional; keeps backward compatibility with older callers.
+    """
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    q = load_trade_queue()
+
+    row = {
+        "Name":         name,
+        "Strategy":     strategy,
+        "Score":        score,
+        "CurrentPrice": current_price,
+        "Entry":        entry,
+        "Stop":         stop,
+        "Take":         take,
+        "Shares":       shares,
+        "RR":           rr,
+        "TP1":          tp1,
+        "TP2":          tp2,
+        "TP3":          tp3,
+        "Timestamp":    ts,
+        "Reasons":      reasons,
+    }
+
+    # de-dup by (Name, Strategy)
+    mask = q["Name"].astype(str).str.lower().eq(str(name).lower()) & \
+           q["Strategy"].astype(str).str.lower().eq(str(strategy).lower())
+    q = q.loc[~mask]
+    q = pd.concat([q, pd.DataFrame([row])], ignore_index=True)
+    save_trade_queue(q)
+
+# ─────────────── Optional OHLC / ATR helpers ───────────────
+# If you add OHLC files later, these functions will start working automatically.
+# Supported layouts:
+#   A) Per-stock files: data/ohlc/<Name>.csv   (columns: Date, Open, High, Low, Close)
+#   B) One combined file: data/ohlc.csv        (same columns + a 'Name' column)
+
+OHLC_DIR      = "data/ohlc"
+OHLC_COMBINED = "data/ohlc.csv"
+
+def _safe_stock_filename(name: str) -> str:
+    # Simple sanitizer for file names (replace spaces and slashes)
+    return str(name).strip().replace("/", "_").replace("\\", "_").replace(" ", "_")
+
+def load_ohlc(name: str) -> pd.DataFrame:
+    """
+    Try to load OHLC for a stock:
+      1) data/ohlc/<Name>.csv
+      2) data/ohlc.csv filtered by Name
+    Returns a DataFrame with [Date, Open, High, Low, Close] (sorted by Date).
+    If nothing found, returns empty DataFrame.
+    """
+    # 1) Per-stock file
+    try_paths = []
+    if name:
+        try_paths.append(os.path.join(OHLC_DIR, _safe_stock_filename(name) + ".csv"))
+    # 2) Combined file
+    try_paths.append(OHLC_COMBINED)
+
+    for path in try_paths:
+        if not os.path.exists(path):
+            continue
+        try:
+            df = pd.read_csv(path)
+        except Exception:
+            continue
+        # If this is the combined file, filter by Name (if present)
+        if "Name" in df.columns and name:
+            df = df[df["Name"].astype(str).str.lower() == str(name).lower()]
+        # Keep only expected columns
+        keep_cols = [c for c in ["Date", "Open", "High", "Low", "Close"] if c in df.columns]
+        if len(keep_cols) < 4:   # need Date + OHLC at least
+            continue
+        out = df[keep_cols].copy()
+        # Parse types
+        if "Date" in out.columns:
+            out["Date"] = pd.to_datetime(out["Date"], errors="coerce")
+        for c in ["Open", "High", "Low", "Close"]:
+            if c in out.columns:
+                out[c] = pd.to_numeric(out[c], errors="coerce")
+        out = out.dropna(subset=["Date", "High", "Low", "Close"]).sort_values("Date")
+        return out.reset_index(drop=True)
+
+    return pd.DataFrame(columns=["Date", "Open", "High", "Low", "Close"])
+
+def compute_atr(ohlc: pd.DataFrame, period: int = 14) -> pd.Series:
+    """
+    Wilder's ATR using an RMA-style smoothing:
+      TR = max(High-Low, abs(High-PrevClose), abs(Low-PrevClose))
+      ATR_t = ATR_{t-1} + (1/period) * (TR_t - ATR_{t-1})
+    Returns a pandas Series (same length as ohlc) with ATR values (NaN for first rows).
+    """
+    if ohlc.empty or any(c not in ohlc.columns for c in ["High", "Low", "Close"]):
+        return pd.Series(dtype=float)
+
+    high = ohlc["High"].astype(float)
+    low  = ohlc["Low"].astype(float)
+    close= ohlc["Close"].astype(float)
+    prev_close = close.shift(1)
+
+    tr = pd.concat([
+        (high - low).abs(),
+        (high - prev_close).abs(),
+        (low  - prev_close).abs(),
+    ], axis=1).max(axis=1)
+
+    # Wilder's smoothing via ewm with alpha=1/period
+    atr = tr.ewm(alpha=(1/period), adjust=False, min_periods=period).mean()
+    return atr
+
+def latest_atr(name: str, period: int = 14):
+    """
+    Convenience: load OHLC for 'name' and return the latest ATR value (float) and date.
+    If unavailable, returns (None, None).
+    """
+    ohlc = load_ohlc(name)
+    if ohlc.empty:
+        return None, None
+    atr_series = compute_atr(ohlc, period=period)
+    if atr_series.empty or atr_series.dropna().empty:
+        return None, None
+    # align with last valid row
+    last_idx = atr_series.dropna().index[-1]
+    return float(atr_series.loc[last_idx]), ohlc.loc[last_idx, "Date"]
+
+
+
