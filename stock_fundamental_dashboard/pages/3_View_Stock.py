@@ -460,108 +460,96 @@ def style_ratio_table(df_in: pd.DataFrame) -> "pd.io.formats.style.Styler":
 
 def _show_styled(styler, height=420):
     """
-    Render a pandas Styler in an iframe that:
-      • matches the Raw Data table sizing (min-width fills container, expands to content)
-      • keeps the header row and first column pinned
-      • preserves your background-color styling + tooltips
+    Render a pandas Styler in‐place so that:
+      • it fills 100% of the Streamlit column width,
+      • the table’s min‐width is 100% (and can overflow horizontally via scroll),
+      • the header row and first column stay pinned,
+      • your THRESHOLDS background‐colours and tooltips all still work.
     """
-    from streamlit.components.v1 import html as html_component
+    import streamlit as st
 
-    # Try to get the HTML; fall back to a plain dataframe if it fails
+    # 1) attempt to get the raw HTML from the Styler
     try:
         html_table = styler.to_html()
     except Exception:
-        st.dataframe(
-            getattr(styler, "data", styler),
-            use_container_width=True,
-            height=height,
-        )
+        # fallback: plain dataframe if something goes wrong
+        st.dataframe(getattr(styler, "data", styler),
+                     use_container_width=True,
+                     height=height)
         return
 
-    page = f"""<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <style>
-      :root {{
-        --bg:#ffffff;
-        --border:#e5e7eb;
-        --hover:#f8fafc;
-        --text:#0f172a;
-        --shadow:0 8px 24px rgba(15,23,42,.06);
-      }}
-      html, body {{
-        margin:0; padding:0; width:100%; height:100%;
-        background:var(--bg);
-        font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
-        font-size:15px; color:var(--text);
-      }}
-      /* Card wrapper */
-      .wrap {{
-        border:1px solid var(--border);
-        border-radius:12px;
-        box-shadow:var(--shadow);
-        background:#fff;
-        overflow:hidden;
-        width:100%;
-      }}
-      /* Scroll pane */
-      .scroll {{
-        overflow-x:auto;
-        overflow-y:auto;
-        max-height:{int(height)}px;
-      }}
-      /* Match Raw Data style */
-      table {{
-        border-collapse: collapse;
-        width: max-content;    /* allow it to be wider than the container */
-        min-width: 100%;       /* but at least fill the width */
-      }}
-      thead th {{
-        position:sticky; top:0; z-index:5;
-        background:#f9fafb;
-        border-bottom:1px solid var(--border);
-        text-align:left;
-      }}
-      th, td {{
-        border:1px solid var(--border);
-        padding:8px 10px;
-        white-space:nowrap;
-      }}
-      tbody tr:hover td, tbody tr:hover th {{
-        background:var(--hover);
-      }}
-      /* Zebra stripes (subtle) */
-      tbody tr:nth-child(2n) td, tbody tr:nth-child(2n) th {{
-        background:#fcfcfd;
-      }}
-      /* keep the first column pinned */
-      tbody th {{
-        position:sticky; left:0; z-index:4;
-        background:#fff;
-        border-right:1px solid var(--border);
-      }}
-      thead th:first-child {{
-        position:sticky; left:0; z-index:6;
-        background:#f9fafb;
-        border-right:1px solid var(--border);
-      }}
-      /* ensure any Styler-generated classes fill 100% */
-      .pd-styler {{
-        width:100% !important;
-      }}
-    </style>
-  </head>
-  <body>
-    <div class="wrap">
-      <div class="scroll">
-        {html_table}
-      </div>
-    </div>
-  </body>
-</html>
+    # 2) inline CSS + wrapper DIV exactly matching your Raw Data style
+    wrapper = f"""
+<style>
+  :root {{
+    --border: #e5e7eb;
+    --hover: #f8fafc;
+    --shadow: 0 8px 24px rgba(15,23,42,.06);
+  }}
+  .wrap {{
+    border:1px solid var(--border);
+    border-radius:12px;
+    box-shadow:var(--shadow);
+    background:#fff;
+    overflow:hidden;
+    width:100%;
+  }}
+  .scroll {{
+    overflow-x:auto;
+    overflow-y:auto;
+    max-height:{int(height)}px;
+  }}
+  /* exactly like your Raw Data */
+  .wrap table {{
+    border-collapse: collapse;
+    width: max-content;    /* can grow wider */
+    min-width: 100%;       /* but at least fill */
+  }}
+  .wrap thead th {{
+    position:sticky; top:0; z-index:5;
+    background:#f9fafb;
+    border-bottom:1px solid var(--border);
+  }}
+  .wrap th, .wrap td {{
+    border:1px solid var(--border);
+    padding:8px 10px;
+    white-space:nowrap;
+  }}
+  .wrap tbody tr:hover td,
+  .wrap tbody tr:hover th {{
+    background:var(--hover);
+  }}
+  .wrap tbody tr:nth-child(2n) td,
+  .wrap tbody tr:nth-child(2n) th {{
+    background:#fcfcfd;
+  }}
+  /* pin first column */
+  .wrap tbody th {{
+    position:sticky; left:0; z-index:4;
+    background:#fff;
+    border-right:1px solid var(--border);
+  }}
+  .wrap thead th:first-child {{
+    position:sticky; left:0; z-index:6;
+    background:#f9fafb;
+    border-right:1px solid var(--border);
+  }}
+  /* allow Styler’s own classes to expand if needed */
+  .pd-styler {{
+    width: max-content;
+  }}
+</style>
+
+<div class="wrap">
+  <div class="scroll">
+    {html_table}
+  </div>
+</div>
 """
-    html_component(page, height=max(220, int(height) + 10), scrolling=False)
+
+    # 3) render via st.markdown so it fills the width
+    st.markdown(wrapper, unsafe_allow_html=True)
+
 
 
 
