@@ -177,97 +177,6 @@ DRAG_CSS = """
 """
 st.markdown(DRAG_CSS, unsafe_allow_html=True)
 
-def _show_styled(styler, height=420):
-    """
-    Render a pandas Styler in-place so that:
-      • it fills 100% width,
-      • header row & first column stay pinned,
-      • Pandas tooltips render above,
-      • works for both orientations.
-    """
-    try:
-        html_table = styler.to_html()
-    except Exception:
-        st.dataframe(getattr(styler, "data", styler),
-                     use_container_width=True, height=height)
-        return
-
-    wrapper = f"""
-<style>
-  :root {{ --border:#e5e7eb; --hover:#f8fafc; --shadow:0 8px 24px rgba(15,23,42,.06); }}
-  .wrap {{ border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); background:#fff; overflow:hidden; width:100%; }}
-  .scroll {{ overflow:auto; max-height:{int(height)}px; position:relative; }}
-  .wrap table {{ border-collapse:collapse; width:max-content; min-width:100%; }}
-  .wrap thead th {{ position:sticky; top:0; z-index:20; background:#f9fafb; border-bottom:1px solid var(--border); }}
-  .wrap th, .wrap td {{ border:1px solid var(--border); padding:8px 10px; white-space:nowrap; }}
-  .wrap tbody tr:hover td, .wrap tbody tr:hover th {{ background:var(--hover); }}
-  .wrap tbody tr:nth-child(2n) td, .wrap tbody tr:nth-child(2n) th {{ background:#fcfcfd; }}
-  .wrap tbody th {{ position:sticky; left:0; z-index:18; background:#fff; border-right:1px solid var(--border); }}
-  .wrap thead th:first-child {{ position:sticky; left:0; z-index:22; background:#f9fafb; border-right:1px solid var(--border); }}
-  .pd-styler {{ width:max-content; }}
-  .wrap td, .wrap th {{ position:relative; overflow:visible; }}
-  .wrap .pd-t {{
-    z-index:9999 !important; background:rgba(17,24,39,.92) !important; color:#fff !important;
-    border-radius:6px !important; padding:4px 8px !important; pointer-events:none !important;
-    transform:translate(8px,-8px) !important; white-space:normal !important; max-width:320px !important;
-  }}
-</style>
-<div class="wrap"><div class="scroll">{html_table}</div></div>
-"""
-    st.markdown(wrapper, unsafe_allow_html=True)
-
-
-def show_fullscreen_styler(styler, *, key: str, title: str = ""):
-    """
-    Adds a 'Full screen' button. When clicked, shows the same Styler
-    in an overlay that fills the entire browser window.
-    """
-    open_key = f"open_{key}"
-    close_key = f"close_{key}"
-    vis_key = f"fs_vis_{key}"
-    if st.button("🖥️ Full screen", key=open_key):
-        st.session_state[vis_key] = True
-
-    if st.session_state.get(vis_key):
-        c1, _ = st.columns([1, 9])
-        with c1:
-            if st.button("✖ Close", key=close_key):
-                st.session_state[vis_key] = False
-
-        try:
-            html_table = styler.to_html()
-        except Exception:
-            st.session_state[vis_key] = False
-            st.warning("Could not render full screen view.")
-            return
-
-        st.markdown(f"""
-<style>
-  #fs-{key} {{
-    position: fixed; inset: 0; z-index: 99999;
-    background: #ffffffF2; backdrop-filter: blur(2px);
-    padding: 16px 16px 0 16px;
-  }}
-  #fs-{key} .title {{ font-weight: 800; margin-bottom: 8px; }}
-  #fs-{key} .wrap {{ border:1px solid #e5e7eb; border-radius:12px; background:#fff; }}
-  #fs-{key} .scroll {{ overflow:auto; height: calc(100vh - 96px); position: relative; }}
-  #fs-{key} table {{ border-collapse: collapse; width:max-content; min-width:100%; }}
-  #fs-{key} thead th {{ position:sticky; top:0; z-index:20; background:#f9fafb; border-bottom:1px solid #e5e7eb; }}
-  #fs-{key} th, #fs-{key} td {{ border:1px solid #e5e7eb; padding:8px 10px; white-space:nowrap; }}
-  #fs-{key} td, #fs-{key} th {{ position:relative; overflow:visible; }}
-  #fs-{key} .pd-t {{
-    z-index: 100000 !important; background: rgba(17,24,39,.92) !important; color:#fff !important;
-    border-radius: 6px !important; padding: 4px 8px !important; pointer-events: none !important;
-    transform: translate(8px, -8px) !important; white-space: normal !important; max-width: 420px !important;
-  }}
-</style>
-<div id="fs-{key}">
-  <div class="title">{title}</div>
-  <div class="wrap"><div class="scroll">{html_table}</div></div>
-</div>
-        """, unsafe_allow_html=True)
-
-
 st.header("🔍 View Stock")
 
 df = io_helpers.load_data()
@@ -718,71 +627,6 @@ def _show_styled(styler, height=420):
 """
     st.markdown(wrapper, unsafe_allow_html=True)
 
-def show_fullscreen_styler(styler, *, key: str, title: str = ""):
-    """
-    Adds a 'Full screen' button. When clicked, shows the same Styler
-    in an overlay that fills the entire browser window.
-    """
-    # Open button
-    open_key = f"open_{key}"
-    close_key = f"close_{key}"
-    vis_key = f"fs_vis_{key}"
-    if st.button("🖥️ Full screen", key=open_key):
-        st.session_state[vis_key] = True
-
-    # Render overlay if active
-    if st.session_state.get(vis_key):
-        # Close first so it reflows fast
-        c1, c2 = st.columns([1, 9])
-        with c1:
-            if st.button("✖ Close", key=close_key):
-                st.session_state[vis_key] = False
-
-        # Build table HTML (same as _show_styled uses)
-        try:
-            html_table = styler.to_html()
-        except Exception:
-            st.session_state[vis_key] = False
-            st.warning("Could not render full screen view.")
-            return
-
-        st.markdown(f"""
-<style>
-  #fs-{key} {{
-    position: fixed; inset: 0; z-index: 99999;
-    background: #ffffffF2; backdrop-filter: blur(2px);
-    padding: 16px 16px 0 16px;
-  }}
-  #fs-{key} .title {{
-    font-weight: 800; margin-bottom: 8px;
-  }}
-  #fs-{key} .wrap {{ border:1px solid #e5e7eb; border-radius:12px; background:#fff; }}
-  #fs-{key} .scroll {{
-    overflow:auto;
-    height: calc(100vh - 96px);   /* fill viewport minus paddings/buttons */
-    position: relative;
-  }}
-  #fs-{key} table {{ border-collapse: collapse; width: max-content; min-width: 100%; }}
-  #fs-{key} thead th {{
-    position: sticky; top: 0; z-index: 20; background: #f9fafb;
-    border-bottom: 1px solid #e5e7eb;
-  }}
-  #fs-{key} th, #fs-{key} td {{ border: 1px solid #e5e7eb; padding: 8px 10px; white-space: nowrap; }}
-  #fs-{key} td, #fs-{key} th {{ position: relative; overflow: visible; }}
-  #fs-{key} .pd-t {{
-    z-index: 100000 !important;
-    background: rgba(17,24,39,.92) !important; color: #fff !important;
-    border-radius: 6px !important; padding: 4px 8px !important;
-    pointer-events: none !important; transform: translate(8px, -8px) !important;
-    white-space: normal !important; max-width: 420px !important;
-  }}
-</style>
-<div id="fs-{key}">
-  <div class="title">{title}</div>
-  <div class="wrap"><div class="scroll">{html_table}</div></div>
-</div>
-        """, unsafe_allow_html=True)
-
 
 # ---------- Builders ----------
 def build_annual_raw_numeric(annual_df: pd.DataFrame) -> pd.DataFrame:
@@ -957,8 +801,8 @@ for stock_name in stocks:
             else:
                 styled = style_raw_spike_table(disp_num, is_columns_period=False)  # periods = rows
             _show_styled(styled, height=420)
-            show_fullscreen_styler(styled, key=f"ann_raw_{stock_name}", title="Annual — Raw Data")
             st.caption("⚠️ Alert: Highlighted cells show ≥100% YoY jump vs the previous year, and a material change (≥5% of median level).")
+
 
 
 
@@ -1275,7 +1119,6 @@ for stock_name in stocks:
                     disp = disp[new_cols_r]
                     styled = style_ratio_table(disp)
                     _show_styled(styled, height=360)
-                    show_fullscreen_styler(styled, key=f"ann_ratio_{stock_name}", title="Annual — Ratios")
                     st.caption("Legend: 🟩 Great  •  🟦 OK  •  🟥 Fails threshold")
 
 
@@ -1292,7 +1135,6 @@ for stock_name in stocks:
                     disp = disp[new_cols_r]
                     styled = style_ratio_table(disp)
                     _show_styled(styled, height=360)
-                    show_fullscreen_styler(styled, key=f"ann_ratio_{stock_name}", title="Annual — Ratios")
                     st.caption("Legend: 🟩 Great  •  🟦 OK  •  🟥 Fails threshold")
 
 
@@ -1494,8 +1336,8 @@ with tabs[1]:
     else:
         styled_q = style_raw_spike_table(disp_qnum, is_columns_period=False)  # periods = rows
     _show_styled(styled_q, height=420)
-    show_fullscreen_styler(styled_q, key=f"q_raw_{stock_name}", title="Quarterly — Raw Data")
     st.caption("⚠️ Alert: Highlighted cells show ≥100% QoQ jump vs the previous quarter, and a material change (≥5% of median level).")
+
 
 
 
@@ -1550,7 +1392,7 @@ with tabs[1]:
             disp_qratio = disp_qratio[new_cols]
             styled = style_ratio_table(disp_qratio)
             _show_styled(styled, height=360)
-            show_fullscreen_styler(styled, key=f"q_ratio_{stock_name}", title="Quarterly — Ratios")
+            
 
 
 
@@ -1565,7 +1407,6 @@ with tabs[1]:
             disp_qratio = disp_qratio[new_cols]
             styled = style_ratio_table(disp_qratio)
             _show_styled(styled, height=360)
-            show_fullscreen_styler(styled, key=f"q_ratio_{stock_name}", title="Quarterly — Ratios")
             st.caption("Legend: 🟩 Great  •  🟦 OK  •  🟥 Fails threshold")
 
     # ---- Quarterly — Comparison Charts (under the ratios table)
