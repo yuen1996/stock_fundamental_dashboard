@@ -1,0 +1,640 @@
+{
+  "stock": "HUP SENG",
+  "industry": "BISCUIT & CONSUMER GOODS",
+  "bucket": "Manufacturing",
+  "columns": {
+    "Income Statement": [
+      "Revenue (TTM/FY)",
+      "Cost of Sales",
+      "Gross Profit",
+      "Operating Profit",
+      "EBITDA",
+      "Net Profit",
+      "Interest Expense",
+      "Selling & Distribution Expenses",
+      "Administrative Expenses",
+      "Three Fees (Selling+Admin+Finance, RM)",
+      "Income Tax Expense",
+      "Dividend per Share (TTM, RM)"
+    ],
+    "Balance Sheet": [
+      "Total Assets",
+      "Total Liabilities",
+      "Equity (Book Value)",
+      "Current Assets",
+      "Current Liabilities",
+      "Receivables (Avg)",
+      "Inventory (Avg)",
+      "Payables (Avg)",
+      "Intangible Assets",
+      "Biological Assets",
+      "Total Borrowings",
+      "Cash & Equivalents",
+      "Shares Outstanding",
+      "Annual Price per Share (RM)"
+    ],
+    "Cash Flow": [
+      "CFO (Cash Flow from Ops)",
+      "Capex",
+      "Depreciation & Amortization (Total)",
+      "Depreciation - PPE",
+      "Depreciation - ROU Assets",
+      "Depreciation of Investment Properties"
+    ],
+    "Industry KPIs": [
+      "Capacity Utilization (%)",
+      "Order Backlog",
+      "Backlog Coverage (x)"
+    ]
+  },
+  "rows": [
+    {
+      "Year": 2019,
+      "Revenue (TTM/FY)": 309539034.0,
+      "Cost of Sales": -204250655.0,
+      "Gross Profit": 513789689.0,
+      "Operating Profit": 53523973.0,
+      "EBITDA": 59698468.0,
+      "Net Profit": 41530489.0,
+      "Interest Expense": -21613.0,
+      "Selling & Distribution Expenses": -33466298.0,
+      "Administrative Expenses": -19724969.0,
+      "Three Fees (Selling+Admin+Finance, RM)": -53212880.0,
+      "Income Tax Expense": -14590130.0,
+      "Dividend per Share (TTM, RM)": 0.06,
+      "Total Assets": 234205813.0,
+      "Total Liabilities": 82404831.0,
+      "Equity (Book Value)": 151800982.0,
+      "Current Assets": 147362198.0,
+      "Current Liabilities": 75175460.0,
+      "Receivables (Avg)": 36833962.0,
+      "Inventory (Avg)": 24297063.0,
+      "Payables (Avg)": 49318635.0,
+      "Intangible Assets": 0.0,
+      "Biological Assets": 0.0,
+      "Total Borrowings": 379157.0,
+      "Cash & Equivalents": 85521945.0,
+      "Shares Outstanding": 800000000.0,
+      "Annual Price per Share (RM)": 0.66,
+      "CFO (Cash Flow from Ops)": 51192430.0,
+      "Capex": 16685132.0,
+      "Depreciation & Amortization (Total)": 6174495.0,
+      "Depreciation - PPE": 5594241.0,
+      "Depreciation - ROU Assets": 517287.0,
+      "Depreciation of Investment Properties": 62967.0,
+      "Capacity Utilization (%)": 0.0,
+      "Order Backlog": 0.0,
+      "Backlog Coverage (x)": 0.0
+    },
+    {
+      "Year": 2020,
+      "Revenue (TTM/FY)": 327325449.0,
+      "Cost of Sales": -222748978.0,
+      "Gross Profit": 550074427.0,
+      "Operating Profit": 55009860.0,
+      "EBITDA": 61858988.0,
+      "Net Profit": 40380506.0,
+      "Interest Expense": -18625.0,
+      "Selling & Distribution Expenses": -31973953.0,
+      "Administrative Expenses": -20535327.0,
+      "Three Fees (Selling+Admin+Finance, RM)": -52527905.0,
+      "Income Tax Expense": -146295354.0,
+      "Dividend per Share (TTM, RM)": 0.06,
+      "Total Assets": 228779958.0,
+      "Total Liabilities": 89000130.0,
+      "Equity (Book Value)": 139779828.0,
+      "Current Assets": 144884779.0,
+      "Current Liabilities": 80668353.0,
+      "Receivables (Avg)": 32036856.0,
+      "Inventory (Avg)": 29742236.0,
+      "Payables (Avg)": 54798470.0,
+      "Intangible Assets": 0.0,
+      "Biological Assets": 0.0,
+      "Total Borrowings": 353612.0,
+      "Cash & Equivalents": 82553281.0,
+      "Shares Outstanding": 800000000.0,
+      "Annual Price per Share (RM)": 0.76,
+      "CFO (Cash Flow from Ops)": 47130658.0,
+      "Capex": -3835705.0,
+      "Depreciation & Amortization (Total)": 6849128.0,
+      "Depreciation - PPE": 6291599.0,
+      "Depreciation - ROU Assets": 494184.0,
+      "Depreciation of Investment Properties": 63345.0,
+      "Capacity Utilization (%)": 0.0,
+      "Order Backlog": 0.0,
+      "Backlog Coverage (x)": 0.0
+    },
+    {
+      "Year": 2021,
+      "Revenue (TTM/FY)": 295832845.0,
+      "Cost of Sales": -214159313.0,
+      "Gross Profit": 509992158.0,
+      "Operating Profit": 37292465.0,
+      "EBITDA": 44029525.0,
+      "Net Profit": 27240004.0,
+      "Interest Expense": -26972.0,
+      "Selling & Distribution Expenses": -28286383.0,
+      "Administrative Expenses": -18614834.0,
+      "Three Fees (Selling+Admin+Finance, RM)": -46928189.0,
+      "Income Tax Expense": -10052461.0,
+      "Dividend per Share (TTM, RM)": 0.03,
+      "Total Assets": 207153461.0,
+      "Total Liabilities": 68133625.0,
+      "Equity (Book Value)": 139019836.0,
+      "Current Assets": 126997765.0,
+      "Current Liabilities": 60890186.0,
+      "Receivables (Avg)": 31614935.0,
+      "Inventory (Avg)": 28211902.0,
+      "Payables (Avg)": 56341109.0,
+      "Intangible Assets": 0.0,
+      "Biological Assets": 0.0,
+      "Total Borrowings": 564053.0,
+      "Cash & Equivalents": 30213861.0,
+      "Shares Outstanding": 800000000.0,
+      "Annual Price per Share (RM)": 0.73,
+      "CFO (Cash Flow from Ops)": 29876298.0,
+      "Capex": -2756293.0,
+      "Depreciation & Amortization (Total)": 6737060.0,
+      "Depreciation - PPE": 6187867.0,
+      "Depreciation - ROU Assets": 485847.0,
+      "Depreciation of Investment Properties": 63346.0,
+      "Capacity Utilization (%)": 0.0,
+      "Order Backlog": 0.0,
+      "Backlog Coverage (x)": 0.0
+    },
+    {
+      "Year": 2022,
+      "Revenue (TTM/FY)": 318194335.0,
+      "Cost of Sales": -239911882.0,
+      "Gross Profit": 558106217.0,
+      "Operating Profit": 35441154.0,
+      "EBITDA": 42160973.0,
+      "Net Profit": 26080914.0,
+      "Interest Expense": -25782.0,
+      "Selling & Distribution Expenses": -27382803.0,
+      "Administrative Expenses": -18364276.0,
+      "Three Fees (Selling+Admin+Finance, RM)": -45772861.0,
+      "Income Tax Expense": -9360240.0,
+      "Dividend per Share (TTM, RM)": 0.03,
+      "Total Assets": 212835948.0,
+      "Total Liabilities": 71735198.0,
+      "Equity (Book Value)": 141100750.0,
+      "Current Assets": 133315439.0,
+      "Current Liabilities": 64883267.0,
+      "Receivables (Avg)": 40168825.0,
+      "Inventory (Avg)": 29941476.0,
+      "Payables (Avg)": 58319651.0,
+      "Intangible Assets": 0.0,
+      "Biological Assets": 0.0,
+      "Total Borrowings": 491902.0,
+      "Cash & Equivalents": 62441932.0,
+      "Shares Outstanding": 800000000.0,
+      "Annual Price per Share (RM)": 0.6,
+      "CFO (Cash Flow from Ops)": 24925994.0,
+      "Capex": -6310673.0,
+      "Depreciation & Amortization (Total)": 6719819.0,
+      "Depreciation - PPE": 6119077.0,
+      "Depreciation - ROU Assets": 537396.0,
+      "Depreciation of Investment Properties": 63346.0,
+      "Capacity Utilization (%)": 0.0,
+      "Order Backlog": 0.0,
+      "Backlog Coverage (x)": 0.0
+    },
+    {
+      "Year": 2023,
+      "Revenue (TTM/FY)": 357270867.0,
+      "Cost of Sales": -248814122.0,
+      "Gross Profit": 606084989.0,
+      "Operating Profit": 60008105.0,
+      "EBITDA": 65680105.0,
+      "Net Profit": 45085589.0,
+      "Interest Expense": -18413.0,
+      "Selling & Distribution Expenses": -32700331.0,
+      "Administrative Expenses": -19248376.0,
+      "Three Fees (Selling+Admin+Finance, RM)": -51967120.0,
+      "Income Tax Expense": -14922516.0,
+      "Dividend per Share (TTM, RM)": 0.04,
+      "Total Assets": 238616867.0,
+      "Total Liabilities": 76430530.0,
+      "Equity (Book Value)": 162186339.0,
+      "Current Assets": 158442983.0,
+      "Current Liabilities": 69940518.0,
+      "Receivables (Avg)": 37260840.0,
+      "Inventory (Avg)": 30126367.0,
+      "Payables (Avg)": 61690404.0,
+      "Intangible Assets": 0.0,
+      "Biological Assets": 0.0,
+      "Total Borrowings": 264378.0,
+      "Cash & Equivalents": 90506463.0,
+      "Shares Outstanding": 800000000.0,
+      "Annual Price per Share (RM)": 0.73,
+      "CFO (Cash Flow from Ops)": 53223321.0,
+      "Capex": -3040654.0,
+      "Depreciation & Amortization (Total)": 5672000.0,
+      "Depreciation - PPE": 5088378.0,
+      "Depreciation - ROU Assets": 63346.0,
+      "Depreciation of Investment Properties": 520276.0,
+      "Capacity Utilization (%)": 0.0,
+      "Order Backlog": 0.0,
+      "Backlog Coverage (x)": 0.0
+    },
+    {
+      "Year": 2024,
+      "Revenue (TTM/FY)": 395349402.0,
+      "Cost of Sales": -272280969.0,
+      "Gross Profit": 667630371.0,
+      "Operating Profit": 73766124.0,
+      "EBITDA": 79936276.0,
+      "Net Profit": 57610935.0,
+      "Interest Expense": -28479.0,
+      "Selling & Distribution Expenses": -35256565.0,
+      "Administrative Expenses": -18266478.0,
+      "Three Fees (Selling+Admin+Finance, RM)": -53551522.0,
+      "Income Tax Expense": -16155189.0,
+      "Dividend per Share (TTM, RM)": 0.07,
+      "Total Assets": 251068346.0,
+      "Total Liabilities": 87271065.0,
+      "Equity (Book Value)": 163797281.0,
+      "Current Assets": 159686079.0,
+      "Current Liabilities": 79403904.0,
+      "Receivables (Avg)": 44029871.0,
+      "Inventory (Avg)": 31891453.0,
+      "Payables (Avg)": 71005740.0,
+      "Intangible Assets": 0.0,
+      "Biological Assets": 0.0,
+      "Total Borrowings": 580883.0,
+      "Cash & Equivalents": 83109119.0,
+      "Shares Outstanding": 800000000.0,
+      "Annual Price per Share (RM)": 1.22,
+      "CFO (Cash Flow from Ops)": 66455212.0,
+      "Capex": -20344770.0,
+      "Depreciation & Amortization (Total)": 6170152.0,
+      "Depreciation - PPE": 5603781.0,
+      "Depreciation - ROU Assets": 503026.0,
+      "Depreciation of Investment Properties": 63345.0,
+      "Capacity Utilization (%)": 0.0,
+      "Order Backlog": 0.0,
+      "Backlog Coverage (x)": 0.0
+    },
+    {
+      "Year": "TTM 2025",
+      "Revenue (TTM/FY)": 398110000.0,
+      "Cost of Sales": -279694000.0,
+      "Gross Profit": 118416000.0,
+      "Operating Profit": 68661000.0,
+      "EBITDA": 84291000.0,
+      "Net Profit": 53717000.0,
+      "Interest Expense": -33000.0,
+      "Selling & Distribution Expenses": -36372000.0,
+      "Administrative Expenses": -17402000.0,
+      "Three Fees (Selling+Admin+Finance, RM)": -53807000.0,
+      "Income Tax Expense": -14644000.0,
+      "Dividend per Share (TTM, RM)": 0.06,
+      "Total Assets": 229946000.0,
+      "Total Liabilities": 63043000.0,
+      "Equity (Book Value)": 166903000.0,
+      "Current Assets": 139429000.0,
+      "Current Liabilities": 55189000.0,
+      "Receivables (Avg)": 38250000.0,
+      "Inventory (Avg)": 32201000.0,
+      "Payables (Avg)": 56583500.0,
+      "Intangible Assets": null,
+      "Biological Assets": null,
+      "Total Borrowings": 571000.0,
+      "Cash & Equivalents": 71627000.0,
+      "Shares Outstanding": 800000000.0,
+      "Annual Price per Share (RM)": 0.93,
+      "CFO (Cash Flow from Ops)": 107280000.0,
+      "Capex": -43073000.0,
+      "Depreciation & Amortization (Total)": 15630000.0,
+      "Depreciation - PPE": 14196000.0,
+      "Depreciation - ROU Assets": 1274000.0,
+      "Depreciation of Investment Properties": 160000.0,
+      "Capacity Utilization (%)": null,
+      "Order Backlog": null,
+      "Backlog Coverage (x)": null
+    }
+  ],
+  "ttm": {
+    "available": true,
+    "quarters": [
+      "2024 Q3",
+      "2024 Q4",
+      "2025 Q1",
+      "2025 Q2"
+    ],
+    "policy_note": "Policy from calculations._build_ttm_policy_for_bucket (industry-aware).",
+    "breakdown": [
+      {
+        "field": "Interest Expense",
+        "method": "SUM_4Q",
+        "inputs": [
+          {
+            "quarter": "2024 Q3",
+            "value": -6000.0
+          },
+          {
+            "quarter": "2024 Q4",
+            "value": -15000.0
+          },
+          {
+            "quarter": "2025 Q1",
+            "value": -6000.0
+          },
+          {
+            "quarter": "2025 Q2",
+            "value": -6000.0
+          }
+        ],
+        "result": -33000.0
+      },
+      {
+        "field": "Net Profit",
+        "method": "SUM_4Q",
+        "inputs": [
+          {
+            "quarter": "2024 Q3",
+            "value": 17272000.0
+          },
+          {
+            "quarter": "2024 Q4",
+            "value": 17339000.0
+          },
+          {
+            "quarter": "2025 Q1",
+            "value": 10596000.0
+          },
+          {
+            "quarter": "2025 Q2",
+            "value": 8510000.0
+          }
+        ],
+        "result": 53717000.0
+      },
+      {
+        "field": "Total Borrowings",
+        "method": "LATEST",
+        "inputs": [
+          {
+            "quarter": "2025 Q2",
+            "value": 571000.0
+          }
+        ],
+        "result": 571000.0
+      },
+      {
+        "field": "Total Assets",
+        "method": "LATEST",
+        "inputs": [
+          {
+            "quarter": "2025 Q2",
+            "value": 229946000.0
+          }
+        ],
+        "result": 229946000.0
+      },
+      {
+        "field": "Total Liabilities",
+        "method": "LATEST",
+        "inputs": [
+          {
+            "quarter": "2025 Q2",
+            "value": 63043000.0
+          }
+        ],
+        "result": 63043000.0
+      },
+      {
+        "field": "Gross Profit",
+        "method": "SUM_4Q",
+        "inputs": [
+          {
+            "quarter": "2024 Q3",
+            "value": 32812000.0
+          },
+          {
+            "quarter": "2024 Q4",
+            "value": 35826000.0
+          },
+          {
+            "quarter": "2025 Q1",
+            "value": 26355000.0
+          },
+          {
+            "quarter": "2025 Q2",
+            "value": 23423000.0
+          }
+        ],
+        "result": 118416000.0
+      },
+      {
+        "field": "Current Liabilities",
+        "method": "LATEST",
+        "inputs": [
+          {
+            "quarter": "2025 Q2",
+            "value": 55189000.0
+          }
+        ],
+        "result": 55189000.0
+      },
+      {
+        "field": "Current Assets",
+        "method": "LATEST",
+        "inputs": [
+          {
+            "quarter": "2025 Q2",
+            "value": 139429000.0
+          }
+        ],
+        "result": 139429000.0
+      },
+      {
+        "field": "Capex",
+        "method": "SUM_4Q",
+        "inputs": [
+          {
+            "quarter": "2024 Q3",
+            "value": -19535000.0
+          },
+          {
+            "quarter": "2024 Q4",
+            "value": -20345000.0
+          },
+          {
+            "quarter": "2025 Q1",
+            "value": -509000.0
+          },
+          {
+            "quarter": "2025 Q2",
+            "value": -2684000.0
+          }
+        ],
+        "result": -43073000.0
+      },
+      {
+        "field": "Administrative Expenses",
+        "method": "SUM_4Q",
+        "inputs": [
+          {
+            "quarter": "2024 Q3",
+            "value": -4405000.0
+          },
+          {
+            "quarter": "2024 Q4",
+            "value": -4352000.0
+          },
+          {
+            "quarter": "2025 Q1",
+            "value": -4310000.0
+          },
+          {
+            "quarter": "2025 Q2",
+            "value": -4335000.0
+          }
+        ],
+        "result": -17402000.0
+      },
+      {
+        "field": "Operating Profit",
+        "method": "SUM_4Q",
+        "inputs": [
+          {
+            "quarter": "2024 Q3",
+            "value": 20631000.0
+          },
+          {
+            "quarter": "2024 Q4",
+            "value": 22323000.0
+          },
+          {
+            "quarter": "2025 Q1",
+            "value": 14213000.0
+          },
+          {
+            "quarter": "2025 Q2",
+            "value": 11494000.0
+          }
+        ],
+        "result": 68661000.0
+      },
+      {
+        "field": "Three Fees (Selling+Admin+Finance, RM)",
+        "method": "SUM_4Q",
+        "inputs": [
+          {
+            "quarter": "2024 Q3",
+            "value": -13224000.0
+          },
+          {
+            "quarter": "2024 Q4",
+            "value": -14659000.0
+          },
+          {
+            "quarter": "2025 Q1",
+            "value": -13173000.0
+          },
+          {
+            "quarter": "2025 Q2",
+            "value": -12751000.0
+          }
+        ],
+        "result": -53807000.0
+      }
+    ],
+    "ttm_row": {
+      "Year": "TTM",
+      "Accounts Payable": 56583500.0,
+      "Accounts Receivable": 38250000.0,
+      "AdminExpenses": null,
+      "Administrative Expenses": -17402000.0,
+      "Average Deposits": null,
+      "Average Earning Assets": null,
+      "Average Gross Loans": null,
+      "Backlog Coverage": null,
+      "BiologicalAssets": null,
+      "CASA Ratio": null,
+      "CET1 Ratio": null,
+      "CFO": 107280000.0,
+      "Capacity Utilization": null,
+      "Capex": -43073000.0,
+      "Cash & Cash Equivalents": 71627000.0,
+      "CostOfSales": -279694000.0,
+      "Current Assets": 139429000.0,
+      "Current Liabilities": 55189000.0,
+      "CurrentAsset": null,
+      "CurrentLiability": null,
+      "DPS": 0.06,
+      "DepAmort": 15630000.0,
+      "DepInvProp": 160000.0,
+      "DepPPE": 14196000.0,
+      "DepROU": 1274000.0,
+      "Deposits": null,
+      "EBIT": 68661000.0,
+      "EBITDA": 84291000.0,
+      "EndQuarterPrice": null,
+      "Equity": 166903000.0,
+      "Fee Income": null,
+      "FinanceCosts": null,
+      "Gross Loans": null,
+      "Gross Profit": 118416000.0,
+      "GrossProfit": null,
+      "IncomeTax": -14644000.0,
+      "Intangible Assets": null,
+      "IntangibleAsset": null,
+      "Interest Expense": -33000.0,
+      "Interest Income": null,
+      "Inventories": null,
+      "Inventory": 32201000.0,
+      "LCR": null,
+      "Loan Loss Reserve": null,
+      "Loan-to-Deposit Ratio": null,
+      "NII (incl Islamic)": NaN,
+      "NIM": null,
+      "NSFR": null,
+      "Net Islamic Income": null,
+      "Net Profit": 53717000.0,
+      "NetProfit": null,
+      "Non-Performing Loans": null,
+      "NumShares": null,
+      "Operating Expenses": null,
+      "Operating Income": NaN,
+      "Operating Profit": 68661000.0,
+      "Order Backlog": null,
+      "Other Operating Income": null,
+      "OtherReceivables": null,
+      "PrepaidExpenses": null,
+      "Price": 0.93,
+      "Provisions": null,
+      "Reserves": null,
+      "Revenue": 398110000.0,
+      "Risk-Weighted Assets": null,
+      "SellDistExpenses": null,
+      "Selling Expenses": -36372000.0,
+      "SharePrice": null,
+      "ShareholderEquity": null,
+      "Shares": 800000000.0,
+      "TP_Bank_CIR_Den": NaN,
+      "TP_Bank_CIR_Num": NaN,
+      "TP_Bank_Lev_Den": 166903000.0,
+      "TP_Bank_Lev_Num": 229946000.0,
+      "TP_Bank_NIM_Den": NaN,
+      "TP_Bank_NIM_Num": NaN,
+      "Three Fees": -53807000.0,
+      "Three Fees (Selling+Admin+Finance, RM)": -53807000.0,
+      "Tier 1 Ratio": null,
+      "Total Assets": 229946000.0,
+      "Total Borrowings": 571000.0,
+      "Total Capital Ratio": null,
+      "Total Liabilities": 63043000.0,
+      "TotalAsset": null,
+      "TotalLiability": null,
+      "TradeReceivables": null,
+      "Trading Income": null,
+      "CurrentPrice": 0.93,
+      "CASA (RM)": 0,
+      "CASA Ratio (%)": NaN,
+      "Net Debt": -71056000.0
+    }
+  }
+}
