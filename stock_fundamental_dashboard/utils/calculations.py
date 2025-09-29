@@ -41,6 +41,30 @@ def _safe_div(a, b) -> Optional[float]:
         return None
     return a / b
 
+# --- TTM helpers: sum/last with None semantics ---
+def _sum_or_none(values):
+    """Sum numeric values; return None if ALL inputs are None/blank."""
+    nums = []
+    for v in (values or []):
+        try:
+            nv = float(v)
+        except Exception:
+            nv = None
+        if nv is not None and (nv == nv):  # not NaN
+            nums.append(nv)
+    return sum(nums) if nums else None
+
+def _last_or_none(values):
+    """Return the last non-None numeric; else None."""
+    for v in reversed(values or []):
+        try:
+            nv = float(v)
+        except Exception:
+            nv = None
+        if nv is not None and (nv == nv):
+            return nv
+    return None
+
 def _mag(x):
     v = _to_num(x)
     return abs(v) if v is not None else None

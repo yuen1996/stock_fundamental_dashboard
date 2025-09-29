@@ -772,7 +772,9 @@ def _ttm_dict_from_quarters(q_df: pd.DataFrame, bucket: str) -> dict:
 
             how = config._ttm_agg_for(category, key, label)
             if how == "sum":
-                v = series.sum(skipna=True)
+                vals = series.dropna()
+                v = vals.sum() if not vals.empty else np.nan  # ← None/blank if all missing
+
             elif how == "mean":
                 v = series.dropna().mean()
             else:  # "last"
@@ -2058,7 +2060,8 @@ with st.expander(name, expanded=True):
             def _sum(*cands):
                 for c in cands:
                     if c in tail.columns:
-                        return pd.to_numeric(tail[c], errors="coerce").sum(skipna=True)
+                        s = pd.to_numeric(tail[c], errors="coerce").dropna()
+                        return s.sum() if not s.empty else np.nan  # ← None/blank if all missing
                 return np.nan
             def _last(*cands):
                 for c in cands:
