@@ -504,14 +504,33 @@ def ttm_raw_row_from_quarters(
                 return _sum_or_none(vals)     # same None-on-all-missing semantics
         return None
 
-    def q_last(canon):
-        cols = Q_ALIASES.get(canon, [])
-        for col in cols:
+    def _iter_cols(canon_key):
+        """Yield candidate column names: try quarterly-prefixed first, then raw/unprefixed."""
+        # 1) quarterly alias names (Q_*)
+        for name in Q_ALIASES.get(canon_key, []):
+            yield name
+        # 2) raw alias names (no Q_)
+        for name in RAW_ALIASES.get(canon_key, []):
+            yield name
+
+    def q_last(canon_key):
+        for col in _iter_cols(canon_key):
             if col in last4.columns:
-                val = _last(last4[col])
-                if val is not None:
-                    return val
+                v = _last(last4[col])
+                if v is not None:
+                    return v
         return None
+
+    def q_sum(canon_key):
+        cols_found = []
+        for col in _iter_cols(canon_key):
+            if col in last4.columns:
+                cols_found.append(pd.to_numeric(last4[col], errors="coerce"))
+        if not cols_found:
+            return None
+        # If multiple aliases exist, use whichever is populated per row
+        s = pd.concat(cols_found, axis=1).max(axis=1)
+        return float(pd.to_numeric(s, errors="coerce").tail(4).sum())
 
     ttm: dict = {}
     # flows (sum)
