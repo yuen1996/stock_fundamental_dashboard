@@ -23,9 +23,6 @@ from utils.ui import (
 setup_page("Add / Edit Stock")  # on 2_Add_or_Edit.py
 render_page_title("Add / Edit Stock")
 
-from utils.dictionary import dictionary_flyout
-dictionary_flyout(key_prefix="addedit", width_px=440)
-
 from datetime import datetime, timezone 
 
 # Show a toast after rerun when settings were saved
@@ -147,7 +144,7 @@ def _now_iso() -> str:
     except Exception:
         # fallback if timezone not available
         return time.strftime("%Y-%m-%d %H:%M:%S")
-    
+       
 # --- Global app settings (shared across pages) ---
 _SETTINGS_FILE = os.path.join(_GRANDP, "data", "app_settings.json")
 
@@ -196,7 +193,7 @@ def set_epf_rate(v: float | None) -> None:
     s = _load_settings()
     s["epf_rate"] = (None if v in (None, "", "—") else float(v))
     _save_settings(s)
-
+ 
 # ---- Cached IO ----
 @st.cache_data(show_spinner=False)
 def get_df():
@@ -608,7 +605,7 @@ def _first_float(d: dict, keys: tuple[str, ...], *, prefix: str = ""):
         if v is not None:
             return v
     return None
-
+  
 # === JSON I/O helpers (used by the Per-stock JSON backup/restore UI) ===
 import json
 import pandas as pd
@@ -807,7 +804,7 @@ def compute_banking_derivatives_annual(
         sd  = _try_float(row_up.get("Savings Deposits"))
         dep = _try_float(row_up.get("Deposits"))
         td  = (_try_float(row_up.get("Time/Fixed Deposits"))
-            or _try_float(row_up.get("Fixed/Time Deposits")))
+               or _try_float(row_up.get("Fixed/Time Deposits")))
         casa_amt = (dd or 0.0) + (sd or 0.0)
         denom = dep if dep not in (None, 0) else (casa_amt + (td or 0.0))
         row_up["CASA Ratio"] = round(casa_amt / denom * 100.0, 2) if denom else None
@@ -866,8 +863,8 @@ def compute_banking_derivatives_annual(
         num = _try_float(row_up.get("TP_Bank_NIM_Num")) or _try_float(row_up.get("NII (incl Islamic)"))
         den = _try_float(row_up.get("TP_Bank_NIM_Den")) or _try_float(row_up.get("Average Earning Assets"))
         row_up["NIM"] = (round(num / den * 100.0, 2)
-                        if (num is not None and den not in (None, 0))
-                        else row_up.get("NIM", None))
+                         if (num is not None and den not in (None, 0))
+                         else row_up.get("NIM", None))
 
 def compute_banking_derivatives_quarterly(
     new_row: dict, *, df, stock_name: str, year: int, quarter: str, available_keys: set[str]
@@ -886,7 +883,7 @@ def compute_banking_derivatives_quarterly(
         sd  = _try_float(new_row.get("Q_Savings Deposits"))
         dep = _try_float(new_row.get("Q_Deposits"))
         td  = (_try_float(new_row.get("Q_Time/Fixed Deposits"))
-            or _try_float(new_row.get("Q_Fixed/Time Deposits")))
+               or _try_float(new_row.get("Q_Fixed/Time Deposits")))
         casa_amt = (dd or 0.0) + (sd or 0.0)
         denom = dep if dep not in (None, 0) else (casa_amt + (td or 0.0))
         new_row["Q_CASA Ratio"] = round(casa_amt / denom * 100.0, 2) if denom else None
@@ -1335,7 +1332,7 @@ def render_calc_helper(
         if ea_calc is not None:
             note = "Net Loans + FVOCI + Amortised Cost + Placements + Reverse Repos (FVTPL excluded)"
             rows.append(("Earning Assets (RM)", _fmt_money(ea_calc), note))
-    
+      
         # Current values (None-aware) for averages
         gl_cur  = _try_float(_read("Gross Loans"))
         dep_cur = _try_float(_read("Deposits"))
@@ -2750,9 +2747,9 @@ else:
                                     before = {}
                                 df.drop(df[mask].index, inplace=True)
                                 _audit_log_event("delete", name=s_name, scope="annual",
-                                                year=int(s_year), before=before,
-                                                changes={"__deleted__":[True, False]},
-                                                source="quick_annual")
+                                                 year=int(s_year), before=before,
+                                                 changes={"__deleted__":[True, False]},
+                                                 source="quick_annual")
                         except Exception:
                             pass
 
@@ -2936,9 +2933,9 @@ else:
                                     before = {}
                                 df.drop(df[mask].index, inplace=True)
                                 _audit_log_event("delete", name=s_name, scope="quarterly",
-                                                year=int(s_year), quarter=s_quarter, before=before,
-                                                changes={"__deleted__":[True, False]},
-                                                source="quick_quarter")
+                                                 year=int(s_year), quarter=s_quarter, before=before,
+                                                 changes={"__deleted__":[True, False]},
+                                                 source="quick_quarter")
                         except Exception:
                             pass
 

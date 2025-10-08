@@ -209,9 +209,6 @@ def _epf_default() -> float:
 setup_decision_page("Systematic Decision")
 render_page_title("Systematic Decision")
 
-from utils.dictionary import dictionary_flyout
-dictionary_flyout(key_prefix="decision", width_px=440)
-
 # ---------- Page header ----------
 st.markdown(
     section(
@@ -485,9 +482,9 @@ def _load_ohlc_for(stock_name: str, _etag: int) -> pd.DataFrame | None:
             df[c] = pd.to_numeric(df[c], errors="coerce")
     df = (
         df.dropna(subset=["Date", "Close"])
-        .drop_duplicates(subset=["Date"])
-        .sort_values("Date")
-        .reset_index(drop=True)
+          .drop_duplicates(subset=["Date"])
+          .sort_values("Date")
+          .reset_index(drop=True)
     )
     return df
 

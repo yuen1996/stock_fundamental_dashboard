@@ -12,12 +12,8 @@ from utils.ui import (
     render_compare_header,
     render_page_title,
 )
-
 setup_page("View Stock")
 render_page_title("View Stock")
-
-from utils.dictionary import dictionary_flyout
-dictionary_flyout(key_prefix="viewstock", width_px=440)
 
 # ---- Compare dialog: full-height & non-blocking backdrop ----
 import streamlit as st
@@ -25,28 +21,28 @@ st.markdown("""
 <style>
 /* —— Wide, white modal —— */
 div[data-baseweb="modal"]{
-align-items:flex-start !important;
-padding-top:24px !important;
+  align-items:flex-start !important;
+  padding-top:24px !important;
 }
 
 /* Modal panel: wider + white */
 div[data-baseweb="modal"] > div,
 div[data-baseweb="modal"] [role="dialog"]{
-width:min(1200px, 96vw) !important;   /* a bit wider */
-max-width:96vw !important;
-background:#fff !important;           /* white background */
-border-radius:12px !important;
-border:1px solid #e5e7eb !important;
-box-shadow:0 12px 32px rgba(0,0,0,.18) !important;
-margin:0 auto !important;
+  width:min(1200px, 96vw) !important;   /* a bit wider */
+  max-width:96vw !important;
+  background:#fff !important;           /* white background */
+  border-radius:12px !important;
+  border:1px solid #e5e7eb !important;
+  box-shadow:0 12px 32px rgba(0,0,0,.18) !important;
+  margin:0 auto !important;
 }
 
 /* Ensure inner container is white and scrolls if tall */
 div[data-baseweb="modal"] [role="document"],
 div[data-baseweb="modal"] [role="dialog"] > div{
-background:#fff !important;           /* keep canvas white */
-max-height:calc(100vh - 64px) !important;
-overflow:auto !important;
+  background:#fff !important;           /* keep canvas white */
+  max-height:calc(100vh - 64px) !important;
+  overflow:auto !important;
 }
 
 /* Standard dark, click-blocking backdrop */
@@ -54,13 +50,13 @@ div[data-baseweb="backdrop"],
 div[data-baseweb="modal"] ~ div[data-baseweb="backdrop"],
 div[data-baseweb="modal"] [data-baseweb="backdrop"],
 div[role="presentation"][style*="background-color"]{
-background:rgba(0,0,0,.5) !important;
-pointer-events:auto !important;
+  background:rgba(0,0,0,.5) !important;
+  pointer-events:auto !important;
 }
 
 /* Let content use full width inside the modal */
 div[data-baseweb="modal"] [data-testid="block-container"]{
-max-width:unset !important;
+  max-width:unset !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -150,9 +146,9 @@ def _build_syn_idx(bucket: str, sum_df: pd.DataFrame) -> dict:
 def save_view_snapshot(name: str, bucket: str, sum_df: pd.DataFrame) -> None:
     """
     Save the exact TTM column the user sees so the Decision page can read it:
-    - st.session_state['ttm_dict_<safe>'] = {Metric -> TTM float/None}
-    - st.session_state['syn_idx_<safe>']  = {lowercased variants -> canonical}
-    - st.session_state['bucket_<safe>']   = last selected bucket
+      - st.session_state['ttm_dict_<safe>'] = {Metric -> TTM float/None}
+      - st.session_state['syn_idx_<safe>']  = {lowercased variants -> canonical}
+      - st.session_state['bucket_<safe>']   = last selected bucket
     """
     if sum_df is None or sum_df.empty or "Metric" not in sum_df.columns:
         return
@@ -308,7 +304,7 @@ def _is_ratio_col_name(col: str) -> bool:
         return False
     # obvious hints
     hints = ("(%)", " margin", "yield", " ratio", "p/e", "peg", "ev/ebitda",
-            "roe", "roa", "coverage", "turnover", "(×)", " (x)")
+             "roe", "roa", "coverage", "turnover", "(×)", " (x)")
     if any(h in sl for h in hints):
         return True
     # common exacts
@@ -492,13 +488,13 @@ def _style_structured_ratio_table(comp: pd.DataFrame):
         return comp
     
 def _summary_insert_category_rows(sum_df: pd.DataFrame, *, industry: str | None,
-                                prefix_category_on_metric: bool = True,
-                                prefix_industry: bool = True) -> pd.DataFrame:
+                                  prefix_category_on_metric: bool = True,
+                                  prefix_industry: bool = True) -> pd.DataFrame:
     """
     Take the calculated summary table with columns: ['Category','Metric', <years...>, 'TTM...']
     and return a display table where:
-    • Each Category becomes a '— Category —' separator row
-    • Each metric label can be prefixed with 'INDUSTRY — <industry> — <Category> — <Metric>'
+      • Each Category becomes a '— Category —' separator row
+      • Each metric label can be prefixed with 'INDUSTRY — <industry> — <Category> — <Metric>'
     """
     if sum_df is None or sum_df.empty:
         return pd.DataFrame()
@@ -531,9 +527,9 @@ def _summary_insert_category_rows(sum_df: pd.DataFrame, *, industry: str | None,
 def _style_summary_with_categories(df_disp: pd.DataFrame):
     """
     Styling to match the screenshot:
-    • Category separator rows centered, bold, tinted
-    • % rows formatted with percent, others with commas
-    • Hide index
+      • Category separator rows centered, bold, tinted
+      • % rows formatted with percent, others with commas
+      • Hide index
     """
     if df_disp is None or df_disp.empty:
         return df_disp
@@ -563,10 +559,10 @@ def _style_summary_with_categories(df_disp: pd.DataFrame):
 
     if pct_mask.any():
         sty = sty.format(lambda v: "—" if pd.isna(v) else f"{float(v):,.2f}%",
-                        subset=pd.IndexSlice[pct_mask, years])
+                         subset=pd.IndexSlice[pct_mask, years])
     if num_mask.any():
         sty = sty.format(lambda v: "—" if pd.isna(v) else f"{float(v):,.2f}",
-                        subset=pd.IndexSlice[num_mask, years])
+                         subset=pd.IndexSlice[num_mask, years])
 
     return sty
 
@@ -738,8 +734,8 @@ def _ttm_dict_from_quarters(q_df: pd.DataFrame, bucket: str) -> dict:
     - Income Statement / Cash Flow: sum last 4 (flows)
     - Balance Sheet: last (stocks), except '(Avg)' -> mean
     - Ratios/%/Rates: last  ⟵ default
-    └── OVERRIDE: NIM (%) is **SUM** of the last 4 quarters so Annual TTM matches
-        the circled quarterly values in your screenshot.
+      └── OVERRIDE: NIM (%) is **SUM** of the last 4 quarters so Annual TTM matches
+          the circled quarterly values in your screenshot.
     - 'Average ...' fields: mean
     - DPS / DPU / fields tagged TTM / 'New Orders (TTM)': sum
     - Counts/levels (Shares, Units, Price, etc.): last
@@ -867,12 +863,12 @@ def _apply_commas_to_styler(sty: "pd.io.formats.style.Styler", df: pd.DataFrame)
     """Add thousand-separator formatting to numeric cells in multi-index tables."""
     if ("Period", "Year") in df.columns:
         sty = sty.format(lambda v: "-" if pd.isna(v) else f"{int(float(v))}",
-                        subset=pd.IndexSlice[:, [("Period","Year")]])
+                         subset=pd.IndexSlice[:, [("Period","Year")]])
     value_cols = [c for c in df.columns
-                if not (isinstance(c, tuple) and c[0] in ("Period", "Analysis"))]
+                  if not (isinstance(c, tuple) and c[0] in ("Period", "Analysis"))]
     if value_cols:
         sty = sty.format(lambda v: "-" if pd.isna(v) else f"{float(v):,.2f}",
-                        subset=pd.IndexSlice[:, value_cols])
+                         subset=pd.IndexSlice[:, value_cols])
     return sty
 
 # ---------- TTM tile resolver: raw + summary (banking-aware) ----------
@@ -906,15 +902,15 @@ def _summary_ttm(sum_df, label):
         return None
 
 def compute_ttm_kpis_for_tiles(annual_df, quarterly_df, bucket: str,
-                            strict_no_fy_fallback: set[str] | None = None):
+                               strict_no_fy_fallback: set[str] | None = None):
     """
     Return:
-    values:  {tile label -> numeric value or None}
-    sources: {tile label -> "raw_ttm" | "ttm_annual" | "latest_fy" | None}
-    fy_year: int | None  (for tagging when latest_fy is used)
+      values:  {tile label -> numeric value or None}
+      sources: {tile label -> "raw_ttm" | "ttm_annual" | "latest_fy" | None}
+      fy_year: int | None  (for tagging when latest_fy is used)
 
     Fallback ladder (unchanged):
-    raw TTM (quarters) → appended TTM annual row (e.g., “TTM 2025”) → latest FY
+      raw TTM (quarters) → appended TTM annual row (e.g., “TTM 2025”) → latest FY
     BUT for any tile in strict_no_fy_fallback, we stop after the TTM steps.
     """
     strict_no_fy_fallback = set(map(str, (strict_no_fy_fallback or set())))
@@ -1225,8 +1221,8 @@ def _cagr_results_to_yearfirst_json(
     """
     JSON for CAGR / MOS / PEG that matches the cards exactly.
     Rules (strict, no window shrinking):
-    • FY end:  need N+1 FY years; start = last_fy - N; end = last_fy
-    • TTM end: need N   FY years; start = last_fy - (N-1); end = TTM column
+      • FY end:  need N+1 FY years; start = last_fy - N; end = last_fy
+      • TTM end: need N   FY years; start = last_fy - (N-1); end = TTM column
     CFO/FCF TTM are built from the last 4 quarters (CFO - |Capex|).
     """
     EB = str(end_basis).upper()
@@ -1308,7 +1304,7 @@ def _cagr_results_to_yearfirst_json(
 
     # strict, card-identical CAGR from a Summary **row**
     def _cagr_from_summary_row_strict(row: pd.Series, years: list[int], N: int,
-                                    EB: str, ttm_col: str | None) -> float | None:
+                                      EB: str, ttm_col: str | None) -> float | None:
         if row is None or not years: return None
         yrs = sorted([int(y) for y in years])
         last_fy = int(yrs[-1])
@@ -1432,7 +1428,7 @@ def _cagr_results_to_yearfirst_json(
 def _cashflow_to_yearfirst_json(cf: dict, *, basis:str, annual_df: pd.DataFrame | None,
                                 name:str, industry:str, bucket:str) -> dict:
     label = _period_label_for(basis, annual_df=(annual_df if isinstance(annual_df, pd.DataFrame) else pd.DataFrame()),
-                            ttm_col=None)
+                              ttm_col=None)
     per = {
         "CFO": _num_or_none(cf.get("CFO")),
         "Capex": _num_or_none(cf.get("Capex")),
@@ -1744,10 +1740,10 @@ def _render_compare(a: str, b: str):
 
     if idx_pct:
         sty = sty.format(lambda v: "—" if pd.isna(v) else f"{float(v):,.2f}%",
-                        subset=pd.IndexSlice[idx_pct, [a, b]])
+                         subset=pd.IndexSlice[idx_pct, [a, b]])
     if idx_num:
         sty = sty.format(lambda v: "—" if pd.isna(v) else f"{float(v):,.2f}",
-                        subset=pd.IndexSlice[idx_num, [a, b]])
+                         subset=pd.IndexSlice[idx_num, [a, b]])
 
     # small badges to show which TTM year each side refers to
     st.markdown(
@@ -1772,7 +1768,7 @@ if len(calc_sel_names) == 2:
             _render_compare(a, b)
 
         st.button("🆚 Compare", type="primary",
-                on_click=_open_compare_dialog, key=f"cmp_open_{a}_{b}")
+                  on_click=_open_compare_dialog, key=f"cmp_open_{a}_{b}")
     else:
         # Fallback for older Streamlit: only render after the button is clicked
         open_key = f"cmp_open_{a}_{b}"
