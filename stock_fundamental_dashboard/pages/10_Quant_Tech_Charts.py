@@ -295,19 +295,26 @@ for idx in df.index[dn.fillna(False)]:
     signals.append({"Date": df.loc[idx, "Date"], "Action": "Sell", "Reason": "EMA10/30 bear cross", "Price": float(price_close.iloc[idx])})
 
 # ----------------------- Figure layout -----------------------
-# rows: price+volume (60%), then RSI, ATR, OBV if enabled (each 20%)
-rows_meta = [("price","Price / Volume")]
-if rsi_series is not None: rows_meta.append(("rsi","RSI"))
-if atr_series is not None: rows_meta.append(("atr","ATR"))
-if obv_series is not None: rows_meta.append(("obv","OBV"))
+# Build explicit row map so traces never land in the wrong pane
+row = 1
+row_map = {"price": row}; row += 1
+if rsi_series is not None: row_map["rsi"] = row; row += 1
+if atr_series is not None: row_map["atr"] = row; row += 1
+if obv_series is not None: row_map["obv"] = row; row += 1
 
+# First row gets secondary_y for Volume; others don't
+specs = []
+for r in range(1, row):
+    specs.append([{"secondary_y": True} if r == row_map["price"] else {"secondary_y": False}])
+
+row_heights = [0.60] + [0.20] * (len(specs) - 1)
 fig = make_subplots(
-    rows=len(rows_meta), cols=1, shared_xaxes=True, vertical_spacing=0.035,
-    row_heights=[0.60] + [0.20]*(len(rows_meta)-1),
-    specs=[[{"secondary_y": True}]] + [[{"secondary_y": False}] for _ in rows_meta[1:]]
+    rows=len(specs), cols=1, shared_xaxes=True, vertical_spacing=0.035,
+    row_heights=row_heights, specs=specs
 )
 
-# --- Price candles
+# --- PRICE (candles + EMA10/30) ---
+r_price = row_map["price"]
 fig.add_trace(go.Candlestick(
     x=df["Date"],
     open=(price_open if use_heikin else df["Open"]),
@@ -316,88 +323,70 @@ fig.add_trace(go.Candlestick(
     close=(price_close if use_heikin else df["Close"]),
     name="Heikin-Ashi" if use_heikin else "Price",
     increasing_line_color="#16a34a", decreasing_line_color="#ef4444"
-), row=1, col=1, secondary_y=False)
+), row=r_price, col=1, secondary_y=False)
 
-# --- EMA(10) blue, EMA(30) red
+# EMA(10) blue, EMA(30) red — strictly on price row
 fig.add_trace(go.Scatter(x=df["Date"], y=ema10, name="EMA(10)", mode="lines",
-                         line=dict(color="#1f77b4", width=2)), row=1, col=1)
+                         line=dict(color="#1f77b4", width=2)), row=r_price, col=1)
 fig.add_trace(go.Scatter(x=df["Date"], y=ema30, name="EMA(30)", mode="lines",
-                         line=dict(color="#d62728", width=2)), row=1, col=1)
+                         line=dict(color="#d62728", width=2)), row=r_price, col=1)
 
-# --- Volume (secondary y)
+# Volume — secondary y of price row only
 if df["Volume"].notna().sum() > 0:
     fig.add_trace(go.Bar(x=df["Date"], y=df["Volume"], name="Volume", opacity=0.30),
-                  row=1, col=1, secondary_y=True)
-    fig.update_yaxes(title_text="Price", row=1, col=1, secondary_y=False)
-    fig.update_yaxes(title_text="Vol",   row=1, col=1, secondary_y=True)
+                  row=r_price, col=1, secondary_y=True)
+    fig.update_yaxes(title_text="Price", row=r_price, col=1, secondary_y=False)
+    fig.update_yaxes(title_text="Vol",   row=r_price, col=1, secondary_y=True)
 
-# --- RSI (STRICT line-only; never overlay price) ---
-row_idx = 2
-if rsi_series is not None:
-    # 30–70 background band (soft purple like TV)
+# --- RSI (STRICT line-only; no price/volume here) ---
+if "rsi" in row_map:
+    r_rsi = row_map["rsi"]
     fig.add_hrect(
-        y0=30, y1=70,
-        line_width=0,
-        fillcolor="rgba(140,117,255,0.10)",  # soft violet tint
-        opacity=1.0,
-        row=row_idx, col=1
+        y0=30, y1=70, line_width=0,
+        fillcolor="rgba(140,117,255,0.10)", opacity=1.0,
+        row=r_rsi, col=1
     )
-
-    # RSI line only (no fill to candles, no secondary axes)
     fig.add_trace(go.Scatter(
         x=df["Date"], y=rsi_series,
-        name="RSI(14)",
-        mode="lines",
-        line=dict(color="#6C5CE7", width=2),  # purple line
+        name="RSI(14)", mode="lines",
+        line=dict(color="#6C5CE7", width=2),
         showlegend=False
-    ), row=row_idx, col=1)
+    ), row=r_rsi, col=1)
+    fig.add_hline(y=70, line=dict(dash="dot", color="#999"), row=r_rsi, col=1)
+    fig.add_hline(y=30, line=dict(dash="dot", color="#999"), row=r_rsi, col=1)
+    fig.update_yaxes(title_text="RSI", range=[0, 100], zeroline=False, row=r_rsi, col=1)
 
-    # OB/OS guide lines
-    fig.add_hline(y=70, line=dict(dash="dot", color="#999"), row=row_idx, col=1)
-    fig.add_hline(y=30, line=dict(dash="dot", color="#999"), row=row_idx, col=1)
-
-    # Axis styling: fixed to 0–100 and clean
-    fig.update_yaxes(
-        title_text="RSI",
-        range=[0, 100],
-        zeroline=False,
-        row=row_idx, col=1
-    )
-
-    row_idx += 1
-
-# --- ATR
-if atr_series is not None:
+# --- ATR ---
+if "atr" in row_map:
+    r_atr = row_map["atr"]
     fig.add_trace(go.Scatter(x=df["Date"], y=atr_series, name="ATR(14)", mode="lines"),
-                  row=row_idx, col=1)
-    fig.update_yaxes(title_text="ATR", row=row_idx, col=1)
-    row_idx += 1
+                  row=r_atr, col=1)
+    fig.update_yaxes(title_text="ATR", row=r_atr, col=1)
 
-# --- OBV
-if obv_series is not None:
+# --- OBV ---
+if "obv" in row_map:
+    r_obv = row_map["obv"]
     fig.add_trace(go.Scatter(x=df["Date"], y=obv_series, name="OBV", mode="lines"),
-                  row=row_idx, col=1)
-    fig.update_yaxes(title_text="OBV", row=row_idx, col=1)
+                  row=r_obv, col=1)
+    fig.update_yaxes(title_text="OBV", row=r_obv, col=1)
 
-# --- Signal markers on price chart (EMA cross)
+# --- Signal markers on PRICE row only ---
 if show_signals and signals:
     sig_df = pd.DataFrame(signals).sort_values("Date")
     buys  = sig_df[sig_df["Action"] == "Buy"]
     sells = sig_df[sig_df["Action"] == "Sell"]
-
     if not buys.empty:
         fig.add_trace(go.Scatter(
             x=buys["Date"], y=buys["Price"], mode="markers",
             marker=dict(symbol="triangle-up", size=12, line=dict(width=1), color="#16a34a"),
             name="BUY signal", hovertext=buys["Reason"], hoverinfo="text+x+y"
-        ), row=1, col=1)
-
+        ), row=r_price, col=1)
     if not sells.empty:
         fig.add_trace(go.Scatter(
             x=sells["Date"], y=sells["Price"], mode="markers",
             marker=dict(symbol="triangle-down", size=12, line=dict(width=1), color="#ef4444"),
             name="SELL signal", hovertext=sells["Reason"], hoverinfo="text+x+y"
-        ), row=1, col=1)
+        ), row=r_price, col=1)
 
 # --- Make the chart 'stick' (no weekend/holiday gaps)
 if freq == "D" and not df.empty:
@@ -410,7 +399,7 @@ if freq == "D" and not df.empty:
         dict(values=missing_weekdays)       # holidays (no data weekdays)
     ])
 
-# Layout: legend below chart; compact margins
+# Layout
 fig.update_layout(
     height=820,
     margin=dict(l=6, r=6, t=10, b=70),
